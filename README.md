@@ -17,6 +17,8 @@ cargo run
 
 # Instruction de jeu
 
+<img src="tetris.png" align="right">
+
 * flèche du haut -> changer la position de la pièce
 * flèche du bas -> accélerer la descente de la pièce
 * flèche de droite -> déplacer la pièce sur la droite
@@ -24,7 +26,7 @@ cargo run
 
 # Bibliothèques utilisées
 
+* [rand](https://docs.rs/rand/0.7.3/rand/)
 * [opengl_graphics](https://docs.rs/piston2d-opengl_graphics/0.71.0/opengl_graphics/)
 * [piston_window](https://docs.piston.rs/piston_window/piston_window/)
-* [rand](https://docs.rs/rand/0.7.3/rand/)
 * [std::time::Instant](https://doc.rust-lang.org/std/time/struct.Instant.html)
