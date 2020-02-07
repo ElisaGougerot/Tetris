@@ -1,3 +1,4 @@
+<img src="tetris.png" align="right">
 # Tetris
 
 Projet réalisé par Victor Deyanovitch & Taj Singh & Elisa Gougerot
@@ -16,8 +17,6 @@ cargo run
 ```
 
 # Instruction de jeu
-
-<img src="tetris.png" align="right">
 
 * flèche du haut -> changer la position de la pièce
 * flèche du bas -> accélerer la descente de la pièce
