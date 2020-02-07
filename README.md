@@ -19,6 +19,8 @@ cargo run
 
 # Instruction de jeu
 
+Placer des pièces (7 formes cubiques différentes) qui descendent du haut vers la bas pour en former des lignes horizontales pleines. Dès qu'elle est pleine, la ligne est détruite et tous les cubes au-dessus de la ligne descendent d'une rangée.
+
 * flèche du haut -> changer la position de la pièce
 * flèche du bas -> accélerer la descente de la pièce
 * flèche de droite -> déplacer la pièce sur la droite
