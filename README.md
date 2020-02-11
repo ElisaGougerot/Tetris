@@ -6,7 +6,7 @@ Projet réalisé par Victor Deyanovitch & Taj Singh & Elisa Gougerot
 Langage de programmation : Rust
 
 # Instruction d'installation
-<img src="tetris.png" align="right">
+<img src="tetris_picture.png" align="right">
 
 1) Installer [Rust](https://www.rust-lang.org) sur votre machine
 2) Effectuez les commandes suivantes :
