@@ -14,9 +14,13 @@ pub struct Falling {
     time_since_fall: Instant,
 }
 
+/// State of the piece: can be :
+/// Falling: The piece is Falling
+/// Line: The piece has formed a Line
+/// GameOver: The game is over, you lost.
 enum State {
     Falling(Falling),
-    Flashing(isize, Instant, Vec<usize>),
+    Line(isize, Instant, Vec<usize>),
     GameOver,
 }
 
@@ -27,6 +31,7 @@ pub struct Game {
     state: State,
 }
 
+/// Initialization of the board.
 impl Game {
     pub fn new(metrics: board::Metrics) -> Self {
         let __ = 0;
@@ -108,6 +113,7 @@ impl Game {
         }
     }
 
+    /// Function that allows to let a random piece drop from a given position and instantly.
     pub fn new_falling(possible_pieces: &Vec<board::Board>) -> Falling {
         let idx = rand::random::<usize>() % possible_pieces.len();
 
@@ -118,9 +124,10 @@ impl Game {
         }
     }
 
+
     pub fn move_piece(&mut self, change: (isize, isize)) {
         let opt_new_state = match &mut self.state {
-            State::GameOver | State::Flashing(_, _, _) => None,
+            State::GameOver | State::Line(_, _, _) => None,
             State::Falling(falling) => {
                 let new_offset = {
                     let (x, y) = falling.offset;
@@ -129,7 +136,7 @@ impl Game {
                 let is_down = change == (0, 1);
 
                 if self.board.as_merged(new_offset, &falling.piece).is_none() {
-                    //There were collisions
+                    //==> Collision
                     if is_down {
                         match self.board.as_merged(falling.offset, &falling.piece) {
                             None => Some(State::GameOver),
@@ -139,7 +146,7 @@ impl Game {
 
                                 *falling = Self::new_falling(&self.possible_pieces);
                                 if completed.len() > 0 {
-                                    Some(State::Flashing(0, Instant::now(), completed))
+                                    Some(State::Line(0, Instant::now(), completed))
                                 } else {
                                     None
                                 }
@@ -149,7 +156,7 @@ impl Game {
                         None
                     }
                 } else {
-                    // Keep falling
+                    //=> Piece is falling
                     falling.offset = new_offset;
                     if is_down {
                         falling.time_since_fall = Instant::now();
@@ -164,9 +171,10 @@ impl Game {
         }
     }
 
+    /// Rotation of the piece
     pub fn rotate(&mut self, counter: bool) {
         match &mut self.state {
-            State::GameOver | State::Flashing(_, _, _) => {}
+            State::GameOver | State::Line(_, _, _) => {}
             State::Falling(falling) => {
                 let rotated_piece = if counter {
                     falling.piece.with_rotated()
@@ -191,7 +199,7 @@ impl Game {
 
         let disp = match &mut self.state {
             State::GameOver => return,
-            State::Flashing(stage, last_stage_switch, lines) => {
+            State::Line(stage, last_stage_switch, lines) => {
                 if last_stage_switch.elapsed() <= Duration::from_millis(50) {
                     return;
                 }
@@ -225,15 +233,8 @@ impl Game {
         let c = &Context::new_abs(res[0] as f64, res[1] as f64);
 
         gl.draw(args.viewport(), |_, gl| match &self.state {
-            State::Flashing(stage, _, _) => {
-                let effect = {
-                    if *stage % 2 == 0 {
-                        board::DrawEffect::None
-                    } else {
-                        board::DrawEffect::None
-                    }
-                };
-                self.board.draw(c, gl, effect, &self.metrics);
+            State::Line(_stage, _, _) => {
+                self.board.draw(c, gl, board::DrawEffect::None, &self.metrics);
             }
             State::Falling(falling) => {
                 if let Some(merged) = self.board.as_merged(falling.offset, &falling.piece) {
@@ -241,7 +242,7 @@ impl Game {
                 }
             }
             State::GameOver => {
-                self.board.draw(c, gl, board::DrawEffect::Darker, &self.metrics);
+                self.board.draw(c, gl, board::DrawEffect::Loose, &self.metrics);
             }
         });
     }

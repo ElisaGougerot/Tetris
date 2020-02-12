@@ -16,6 +16,7 @@ pub enum Color {
     Orange,
 }
 
+/// Screen Params
 pub struct Metrics {
     pub block_pixels: usize,
     pub board_x: usize,
@@ -23,7 +24,7 @@ pub struct Metrics {
 }
 
 impl Metrics {
-     pub fn resolution(&self) -> [u32; 2] {
+    pub fn resolution(&self) -> [u32; 2] {
         [
             (self.board_x * self.block_pixels) as u32,
             (self.board_y * self.block_pixels) as u32,
@@ -42,17 +43,18 @@ pub type Piece = Board;
 
 pub enum DrawEffect {
     None,
-    //Flash(&'a Vec<usize>),
-    Darker,
+    Loose,
 }
 
 impl Board {
+    /// Init Board
     pub fn empty(dim_x: usize, dim_y: usize) -> Self {
         let line: Vec<_> = (0..dim_x).map(|_| None).collect();
         let cells: Vec<_> = (0..dim_y).map(|_| line.clone()).collect();
         Board { cells }
     }
 
+    /// Colision
     pub fn valid(&self, offset: (isize, isize)) -> bool {
         if offset.0 >= 0 && offset.0 < self.dim_x() as isize {
             if offset.1 >= 0 && offset.1 < self.dim_y() as isize {
@@ -70,6 +72,7 @@ impl Board {
         self.cells.len()
     }
 
+    /// Add Piece in Board
     pub fn piece(spec: &[[u8; 4]; 4], color: Color) -> Self {
         let mut board = Board::empty(spec[0].len(), spec.len());
 
@@ -82,6 +85,7 @@ impl Board {
         board
     }
 
+    /// Merge Board with new piece
     pub fn as_merged(&self, offset: (isize, isize), board: &Board) -> Option<Board> {
         let mut copy = self.clone();
 
@@ -107,13 +111,8 @@ impl Board {
         Some(copy)
     }
 
-    pub fn draw(
-        &self,
-        c: &Context,
-        gl: &mut GlGraphics,
-        effect: DrawEffect,
-        metrics: &Metrics,
-    ) {
+    /// Draw the Board On Window
+    pub fn draw(&self, c: &Context, gl: &mut GlGraphics, effect: DrawEffect, metrics: &Metrics) {
         let mut draw = |color, rect: [f64; 4]| {
             Rectangle::new(color).draw(rect, &DrawState::default(), c.transform, gl);
         };
@@ -158,12 +157,7 @@ impl Board {
 
                 match effect {
                     DrawEffect::None => {}
-                    //DrawEffect::Flash(lines) => {
-                        //if lines.contains(&(y as usize)) {
-                            //draw([1.0, 1.0, 1.0, 0.5], outer);
-                        //}
-                    //}
-                    DrawEffect::Darker => {
+                    DrawEffect::Loose => {
                         draw([0.0, 0.0, 0.0, 0.9], outer);
                     }
                 }
@@ -171,6 +165,7 @@ impl Board {
         }
     }
 
+    /// Remove a line
     pub fn without_line(&self, idx: usize) -> Self {
         let mut board = self.clone();
 
@@ -178,6 +173,7 @@ impl Board {
         board
     }
 
+    /// Add Empty Line
     pub fn prepend_empty_line(&self) -> Self {
         let line: Vec<_> = (0..self.dim_x()).map(|_| None).collect();
         let mut board = self.clone();
@@ -186,6 +182,7 @@ impl Board {
         board
     }
 
+    /// Erase Board
     pub fn with_eliminate_lines(&self, lines: &Vec<usize>) -> Self {
         let mut board = self.clone();
 
@@ -200,6 +197,7 @@ impl Board {
         board
     }
 
+    /// Create new Board without First and Last Line
     pub fn with_trimmed_lines(&self) -> Self {
         let mut board = self.clone();
 
@@ -214,6 +212,7 @@ impl Board {
         board
     }
 
+    /// Return Complete Line
     pub fn get_full_lines_indicts(&self) -> Vec<usize> {
         self.cells
             .iter()
@@ -224,6 +223,7 @@ impl Board {
             .collect()
     }
 
+    /// Transposed Board
     pub fn transposed(&self) -> Self {
         let mut board = Self::empty(self.dim_y(), self.dim_x());
 
@@ -236,6 +236,7 @@ impl Board {
         board
     }
 
+    /// Return new Board with sysmetric on vertical axis
     pub fn with_mirrored_y(&self) -> Self {
         let mut board = Self::empty(self.dim_x(), self.dim_y());
 
@@ -248,10 +249,12 @@ impl Board {
         board
     }
 
+    /// Rotate a piece
     pub fn with_rotated_counter(&self) -> Self {
         self.transposed().with_mirrored_y()
     }
 
+    /// Rotate a piece
     pub fn with_rotated(&self) -> Self {
         self.with_mirrored_y().transposed()
     }

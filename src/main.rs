@@ -11,8 +11,8 @@ mod board;
 fn main() {
     let metrics = board::Metrics {
         block_pixels: 25,
-        board_x: 10,
-        board_y: 20,
+        board_x: 5,
+        board_y: 5,
     };
 
     let mut window: PistonWindow = WindowSettings::new("Tetris", metrics.resolution())
